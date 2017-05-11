@@ -1708,7 +1708,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #ff03ff;
+  background: #ff1aff;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -1735,7 +1735,6 @@ pre .javascript .function {
   cursor: pointer;
   border-bottom: 1px solid transparent;
   font-size: 14px;
-  color: #555;
 }
 .sidebar-nav li:hover {
   color: #f5f5f5;
