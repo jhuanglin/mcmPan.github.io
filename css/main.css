@@ -485,10 +485,10 @@ code {
   font-family: 'consola', consolas, Menlo, "PingFang SC", "Microsoft YaHei", monospace;
 }
 code {
-  padding: 2px 4px;
+  padding: 2px 6px;
   word-wrap: break-word;
-  color: #555;
-  background: #eee;
+  color: #cecaca;
+  background: #222;
   border-radius: 3px;
   font-size: 14px;
 }
@@ -1711,7 +1711,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #610aff;
+  background: #13f40f;
 }
 .links-of-blogroll {
   font-size: 13px;
