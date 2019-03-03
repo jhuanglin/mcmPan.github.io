@@ -1,0 +1,1314 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Lobster Two:300,300italic,400,400italic,700,700italic|consola:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JavaScript," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="前言不知道怎么开头，因为做项目或者之前面试的时候，经常会遇到Promise的相关问题，那就做一次总结吧。文章开始前，先问几个简单的Promise的问题：  Promise是什么？ Promise.then和Promise.catch 返回的是什么呢？ Promise 可以中断吗？  Promise是什么根据MDN上的定义  A Promise is an object representing t">
+<meta name="keywords" content="JavaScript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Promisee的总结">
+<meta property="og:url" content="http://mcmPan.github.io/2019/03/03/Promise的总结/index.html">
+<meta property="og:site_name" content="七迁屋">
+<meta property="og:description" content="前言不知道怎么开头，因为做项目或者之前面试的时候，经常会遇到Promise的相关问题，那就做一次总结吧。文章开始前，先问几个简单的Promise的问题：  Promise是什么？ Promise.then和Promise.catch 返回的是什么呢？ Promise 可以中断吗？  Promise是什么根据MDN上的定义  A Promise is an object representing t">
+<meta property="og:image" content="https://mdn.mozillademos.org/files/15911/promises.png">
+<meta property="og:updated_time" content="2019-03-03T09:18:59.873Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Promisee的总结">
+<meta name="twitter:description" content="前言不知道怎么开头，因为做项目或者之前面试的时候，经常会遇到Promise的相关问题，那就做一次总结吧。文章开始前，先问几个简单的Promise的问题：  Promise是什么？ Promise.then和Promise.catch 返回的是什么呢？ Promise 可以中断吗？  Promise是什么根据MDN上的定义  A Promise is an object representing t">
+<meta name="twitter:image" content="https://mdn.mozillademos.org/files/15911/promises.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"right","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://mcmPan.github.io/2019/03/03/Promise的总结/"/>
+
+
+
+
+
+  <title>Promisee的总结 | 七迁屋</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6d91a9982ae6f284df4998705773322e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">七迁屋</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">MCM_xp's blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://mcmPan.github.io/2019/03/03/Promise的总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Lin JianHuang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/wukong.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="七迁屋">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Promisee的总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-03T17:11:40+08:00">
+                2019-03-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/前端/" itemprop="url" rel="index">
+                    <span itemprop="name">前端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/03/03/Promise的总结/" class="leancloud_visitors" data-flag-title="Promisee的总结">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>不知道怎么开头，因为做项目或者之前面试的时候，经常会遇到Promise的相关问题，那就做一次总结吧。文章开始前，先问几个简单的Promise的问题：</p>
+<ol>
+<li>Promise是什么？</li>
+<li>Promise.then和Promise.catch 返回的是什么呢？</li>
+<li>Promise 可以中断吗？</li>
+</ol>
+<h3 id="Promise是什么"><a href="#Promise是什么" class="headerlink" title="Promise是什么"></a>Promise是什么</h3><p>根据MDN上的定义</p>
+<blockquote>
+<p>A <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" target="_blank" rel="external"><code>Promise</code></a> is an object representing the eventual completion or failure of an asynchronous operation.</p>
+<p>翻译: Promise是一个代表了异步操作最终完成或者失败的结果对象。</p>
+</blockquote>
+<p>什么意思呢？Promise可以用于处理异步操作，并可以根据异步的结果而进行相应的操作。</p>
+<a id="more"></a>
+<p>JavaScript是单线程的语言，代码自顶向下执行，一次只能执行一次任务，代码执行过程中如果遇到了异步操作，则先将异步操作挂起，先执行下面的任务，直到当前栈所有任务执行完成，开始执行异步操作相对应的回调函数。</p>
+<p>那这跟Promise有什么关系呢？让我们来看看Promise的基本用法先</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">var p = new Promise(function(resolve, reject) &#123;</div><div class="line">    console.log(&apos;start Promise&apos;)</div><div class="line">    setTimeout(function() &#123;</div><div class="line">        resolve(&apos;模拟异步操作&apos;) //模拟异步操返回结果</div><div class="line">    &#125;, 1000)</div><div class="line">    console.log(&apos;end Promise&apos;)       </div><div class="line">&#125;).then((result) =&gt; &#123;</div><div class="line">    console.log(result)</div><div class="line">&#125;)</div><div class="line"></div><div class="line">----output----</div><div class="line">start Promise</div><div class="line">end Promise</div><div class="line">模拟异步操作 // 1000ms后</div></pre></td></tr></table></figure>
+<p>在上面操作中，我们在<code>Promise</code>中使用<code>setTimeOut</code>模拟异步操作，利用resolve得到异步返回的结果，在<code>then</code>中输出来。<code>Promise</code>传入的函数为立即执行函数，里面执行代码遇到异步时，先执行下面的代码，输出<code>end Promise</code>，再去执行挂起的异步事件。</p>
+<p><code>Promise</code>可以<strong>将异步执行代码和异步结果分隔开来</strong>，通过resolve或者reject获取到异步的结果，在<code>then</code>中执行相应的操作。</p>
+<p>而<code>Promise</code>另一个好处就是支持链式调用，避免多重的嵌套回调（回调地狱），将异步操作用同步的形式展示出来，将回调地狱代码的横向延申变为纵向延申。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">// 以往异步请求代码</div><div class="line">ajax(url1, data1, function (data2) &#123;</div><div class="line">    console.log(&apos;得到第一次请求的结果&apos;)</div><div class="line">    ajax(url2, data2, function (data3) &#123;</div><div class="line">        console.log(&apos;得到第二次请求的结果&apos;)</div><div class="line">        ajax(url3, data3, function(data4) &#123;</div><div class="line">            console.log(&apos;得到第三次请求的结果&apos;)</div><div class="line">        &#125;)</div><div class="line">    &#125;)</div><div class="line">&#125;)</div><div class="line"></div><div class="line">// 使用Promise</div><div class="line">function requestData(url, data) &#123;</div><div class="line">    return new Promise(function(resolve, reject) &#123;</div><div class="line">        ajax(url, data, function(data1) &#123;</div><div class="line">            resolve(data)</div><div class="line">        &#125;)</div><div class="line">    &#125;)</div><div class="line">&#125;</div><div class="line"></div><div class="line">requestData(url1, data1)</div><div class="line">	.then((data2) =&gt; &#123;</div><div class="line">      	console.log(&apos;第一次返回结果&apos;)</div><div class="line">      	return requestData(url2, data2)</div><div class="line">	&#125;)</div><div class="line">	.then((data3) =&gt; &#123;</div><div class="line">       	console.log(&apos;第二次返回结果&apos;)</div><div class="line">      	return requestData(url4, data4)</div><div class="line">	&#125;)</div><div class="line">	.catch(e =&gt; &#123;</div><div class="line">      console.log(e) //输出Promise过程中的错误</div><div class="line">	&#125;)</div></pre></td></tr></table></figure>
+<p>以上，当每一次异步请求都依赖于前一次异步请求的结果时，由于<code>Promise</code>将执行代码和执行结果分离，利用<code>then</code>进行链式调用，让多次异步任务变成同步代码按照顺序执行。</p>
+<p>下面让我们来看一下<code>Promise</code>的语法吧。</p>
+<h3 id="Promise的语法"><a href="#Promise的语法" class="headerlink" title="Promise的语法"></a>Promise的语法</h3><h4 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">new Promise(function (resolve, reject) &#123;</div><div class="line">  /* executor */</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p><code>Promise</code>传入一个<code>executor</code>的函数，<code>resolve</code>和<code>reject</code>作为两个回调函数传入<code>executor</code>中。<code>executor</code>为立即执行函数，也就是在新建<code>Promise</code>对象时，<code>executor</code>已经执行了。通常在<code>executor</code>内部会执行一些异步任务，<code>resolve</code>和<code>reject</code>分别将<code>Promise</code>的状态从<code>pending</code>改为<code>fulfilled</code>（完成）或者<code>rejected</code>(失败)。</p>
+<p>注意，一旦<code>executor</code>执行了，就无法中断里面的代码。当函数中抛出了一个错误，则<code>Promise</code>的状态会改为<code>rejected</code>，<code>executor</code>返回的值会被忽略。</p>
+<p>一个<code>Promise</code>对象有三种状态<br>    1.pending：初始状态<br>    2.fulfilled：操作已完成<br>    3.rejected：操作失败</p>
+<p><code>Promise</code>只能有两种状态转变  </p>
+<pre><code>1.从pengding到fulfilled, 状态改变时调用resolve,将异步操作完成的结果作为参数传递出去
+2.从pending到rejected， 状态改变时调用rejected，将失败信息传递出去
+</code></pre><p>当状态发生改变时，<code>Promise</code>的<code>then</code>绑定的方法会被调用(不是立即执行),。</p>
+<h4 id="then"><a href="#then" class="headerlink" title=".then"></a>.then</h4><p><strong>语法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Promise.prototype.then(function(onFulfilled, onRejected) &#123;</div><div class="line">	...</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p><code>then</code>方法中有两个函数类型的参数，<code>onFulfilled</code>和<code>onRejected</code>。当发生<code>Promise</code>的状态变为<code>fulfilled</code>时，调用<code>onFulfilled</code>方法；状态变为<code>rejected</code>时，调用<code>onRejected</code>方法。这两个方法在调用时可以分别传入异步操作的完成结果或者错误信息。</p>
+<p>调用<code>then</code>之后，返回的是一个新的<code>Promise</code>对象（跟之前的<code>Promise</code>无关），因此，可以继续使用<code>then</code>方法，实现链式调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">var p1 = new Promise(function(resolve, reject) &#123;</div><div class="line">	console.log(1)</div><div class="line">    resolve(2)</div><div class="line">&#125;).then(res =&gt; &#123;</div><div class="line">    console.log(res)</div><div class="line">&#125;).then(() =&gt; &#123;</div><div class="line">    console.log(3)</div><div class="line">&#125;)</div><div class="line"></div><div class="line">----output----</div><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td></tr></table></figure>
+<p>借助<code>then</code>，让<code>Promise</code>在异步操作执行和异步结果（根据不同结果绑定处理方法）不存在冲突耦合。</p>
+<p>当<code>then</code>返回的<code>Promise</code>跟<code>then</code>返回的值有关系，当·then·返回一个值时，那么<code>then</code>返回的<code>Promise</code>将会成为接受状态，并且将返回的值作为接受状态的回调函数的参数值。详细的可以点击<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/then#%E8%BF%94%E5%9B%9E%E5%80%BC" target="_blank" rel="external">这里</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">new Promise(function (resolve, reject) &#123;</div><div class="line">    console.log(1)</div><div class="line">    resolve(2)</div><div class="line">&#125;).then((res) =&gt; &#123;</div><div class="line">    console.log(res)</div><div class="line">    return 3  // 相当于返回一个fulfiiled状态的promise，将参数3传递给resolve	</div><div class="line">&#125;).then((res) =&gt; &#123;</div><div class="line">    console.log(res)</div><div class="line">    return new Promise((resolve, reject) =&gt; &#123;</div><div class="line">        resolve(4)</div><div class="line">    &#125;)</div><div class="line">&#125;).then((res) =&gt; &#123;</div><div class="line">    console.log(res)</div><div class="line">&#125;)</div><div class="line"></div><div class="line">----output----</div><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td></tr></table></figure>
+<h4 id="catch"><a href="#catch" class="headerlink" title=".catch"></a>.catch</h4><p><strong>语法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Promise.prototype.catch(function(onRejected) &#123;</div><div class="line">  ...</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p><code>catch</code>方法可以捕捉<code>Promise</code>的错误信息，并执行相应的<code>handler</code>，它跟调用<code>.then(undefined, onRejected)</code>相同。因此<code>catch</code>的结果也是返回一个<code>Promise</code>对象，一样支持链式调用。</p>
+<p><img src="https://mdn.mozillademos.org/files/15911/promises.png" alt="promise链式调用"></p>
+<p>在<code>Promise</code>中错误具有冒泡性质，一直向后传递，直到被<code>then</code>或者<code>catch</code>中的<code>onRejected</code>捕捉到错误信息，才会进行操作。下面让我们看一下<code>Promise</code>链式调用中抛出错误要注意的点吧</p>
+<ol>
+<li>Promise抛出错误后，遇到onRejected才会执行</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">var p2 = new Promise(function(resolve, reject) &#123;</div><div class="line">    console.log(1)</div><div class="line">    throw &apos;error&apos;</div><div class="line">&#125;).then(() =&gt; &#123;</div><div class="line">    console.log(2)</div><div class="line">&#125;).then(() =&gt; &#123;</div><div class="line">    console.log(3)</div><div class="line">&#125;).catch((e) =&gt; &#123;</div><div class="line">    console.log(e)</div><div class="line">&#125;).then(() =&gt; &#123;</div><div class="line">    console.log(4)</div><div class="line">&#125;)</div><div class="line"></div><div class="line">----output----</div><div class="line">1</div><div class="line">error</div><div class="line">4</div></pre></td></tr></table></figure>
+<p>当发生了错误时，<code>Promise</code>状态变为<code>rejected</code>，调用<code>then</code>或者<code>catch</code>中的<code>onRejected</code>，因此以上代码不会输出2和3。</p>
+<p>另外<code>catch</code>返回的依旧是一个<code>Promise</code>（非rejected状态），所以<code>catch</code>后面的<code>then</code>正常输出。</p>
+<ol>
+<li>resolve()之后后面抛出的错误会被忽略</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">var p = new Promise(function(resolve, reject) &#123;</div><div class="line">    resolve(1)</div><div class="line">    console.log(2)  //会继续执行</div><div class="line">    throw &apos;test error&apos; // 或者reject(&apos;test error&apos;)</div><div class="line">&#125;).then((res) =&gt; &#123;</div><div class="line">    console.log(res) //收到参数1</div><div class="line">&#125;).then(() =&gt; &#123;</div><div class="line">    console.log(3)</div><div class="line">&#125;).catch((e) =&gt; &#123;</div><div class="line">    console.log(e) //不会执行</div><div class="line">&#125;)</div><div class="line"></div><div class="line">----output----</div><div class="line">2</div><div class="line">1</div><div class="line">3</div></pre></td></tr></table></figure>
+<p>我想这跟<code>Promise</code>状态改变有关，调用<code>resolve</code>意味着<code>Promise</code>状态从<code>pending</code>转为<code>fulfilled</code>后，不能再从<code>fulfilled</code>转为<code>rejected</code>状态，因此会忽略后面抛出的错误。</p>
+<ol>
+<li>在异步函数中抛出的错误不会被catch捕捉到</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">new Promise(function (resolve, reject) &#123;</div><div class="line">    setTimeout(function() &#123;</div><div class="line">        console.log(1)</div><div class="line">        throw &apos;test catch error&apos;</div><div class="line">    &#125;, 1000)</div><div class="line">&#125;).catch(e =&gt; &#123;</div><div class="line">    console.log(e) //不能捕捉到错误</div><div class="line">&#125;)</div><div class="line"></div><div class="line">----output----</div><div class="line">1</div><div class="line">1s后报错，提示未能捕捉到错误</div><div class="line"></div><div class="line">可以用resolve作为setTimeout的处理函数解决问题</div><div class="line">new Promise(function (resolve, reject) &#123;</div><div class="line">    setTimeout(resolve, 1000)</div><div class="line">&#125;).then(() =&gt; &#123;</div><div class="line">    console.log(1)</div><div class="line">    throw &apos;test catch error&apos;</div><div class="line">&#125;).catch(e =&gt; &#123;</div><div class="line">    console.log(e)  //捕捉到错误</div><div class="line">&#125;)</div><div class="line"></div><div class="line">----output----</div><div class="line">1</div><div class="line">test catch error</div></pre></td></tr></table></figure>
+<h4 id="finally"><a href="#finally" class="headerlink" title=".finally"></a>.finally</h4><p><strong>语法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Promise.prototype.finnaly(onFinally)</div></pre></td></tr></table></figure>
+<p><code>finnaly</code>方法一般放在<code>Promise</code>链的最后，当<code>Promise</code>执行结束后，不管是<code>rejected</code>或者<code>fulfilled</code>状态，执行完<code>then</code>或者<code>catch</code>后，都会执行<code>finally</code>中指定的回调函数。</p>
+<p>注意，由于无法直到<code>Promise</code>的最终状态，所以<code>finally</code>的回调函数中不接受任何参数。</p>
+<p>一般应用场景是在<code>Promise</code>执行完毕后，要做一些处理或者清理，就可以使用到<code>finally</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">var loading = true</div><div class="line">fetch(request).then(res =&gt; &#123;</div><div class="line">	if (res.status) &#123;</div><div class="line">		return res.json()</div><div class="line">	&#125;</div><div class="line">	throw &apos;Error&apos;</div><div class="line">&#125;)</div><div class="line">.then(handler(json))</div><div class="line">.catch(handlerError(error))</div><div class="line">.finally(() =&gt; loading = false)</div></pre></td></tr></table></figure>
+<h4 id="resolve"><a href="#resolve" class="headerlink" title=".resolve"></a>.resolve</h4><p><strong>语法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Promise.resolve(value)</div><div class="line">Promise.reject(reason)</div></pre></td></tr></table></figure>
+<p><code>resolve</code>方法返回一个给定值的<code>Promise</code>对象。如果给定的值为<code>thenable</code>（即带有<code>then</code>方法），返回的<code>Promise</code>会“跟随”这个<code>thenable</code>的对象，采用它的最终状态（指<code>fulfilledrejected/pending</code>）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">var p = Promise.resolve(&#123;</div><div class="line">    then: function(resolve, reject) &#123;</div><div class="line">        resolve(1)</div><div class="line">    &#125;</div><div class="line">&#125;)</div><div class="line">p.then(res =&gt; &#123;</div><div class="line">    console.log(1)</div><div class="line">&#125;)</div><div class="line">----output----</div><div class="line">1</div><div class="line"></div><div class="line">Promise.resolve(1)</div><div class="line">.then((res) =&gt; &#123;console.log(res)&#125;)</div><div class="line">----output----</div><div class="line">1</div></pre></td></tr></table></figure>
+<p>如果传入的<code>value</code>本身就是promise对象，则该对象作为<code>Promise.resolve</code>方法的返回值返回</p>
+<p>否则返回成功状态的<code>Promise</code>对象，并传入给定的值。</p>
+<h4 id="all"><a href="#all" class="headerlink" title=".all"></a>.all</h4><p><strong>语法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Promise.all(iterable);</div></pre></td></tr></table></figure>
+<p><code>iterable</code>为一个可迭代对象，<code>Array</code>或<code>String</code></p>
+<ul>
+<li>如果传入一个空对象，则返回一个完成状态的<code>Promise</code>状态</li>
+<li>如果传入的<code>Promise</code>都为完成状态或者不含一个<code>Promise</code>，则<code>Promise.all</code>返回的<code>Promise</code>异步地变为完成</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">var promiseAll = [Promise.resolve(1), Promise.resolve(2)]</div><div class="line">var p = Promise.all(promiseAll)</div><div class="line">console.log(p)</div><div class="line">setTimeout(function()&#123;</div><div class="line">	console.log(&apos;async resolved&apos;)</div><div class="line">	console.log(p)  // 异步</div><div class="line">&#125;, 0)</div><div class="line"></div><div class="line">----output----</div><div class="line">// Promise &#123; &lt;state&gt;: &quot;pending&quot; &#125; </div><div class="line">// the stack is now empty</div><div class="line">// Promise &#123; &lt;state&gt;: &quot;fulfilled&quot;, &lt;value&gt;: Array[2] &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><p>其他情况下，返回一个<code>pending</code>的<code>Promise</code>。这个返回的<code>Promise</code>会在所有的<code>Promise</code>都完成或者其中一个<code>Promise</code>失败时，异步地变为<code>fulfilled</code>或者<code>rejected</code>。</p>
+<p>返回的<code>Promise</code>的结果为一个数组，包含传入的迭代对象的所有结果值（包含非Promise值）</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">Promise.all([$http.get(&apos;/demo1&apos;),</div><div class="line">        $http.get(&apos;/demo2&apos;),</div><div class="line">        $http.get(&apos;/demo3&apos;)</div><div class="line">])</div><div class="line">.then(function(results)&#123;</div><div class="line">    console.log(&apos;result 1&apos;, results[0]);</div><div class="line">    console.log(&apos;result 2&apos;, results[1]);</div><div class="line">    console.log(&apos;result 3&apos;, results[2]);</div><div class="line">&#125;);</div><div class="line"></div><div class="line">var p1 = 1</div><div class="line">var p2 = Promise.resolve(2)</div><div class="line">var p3 = new Promise((re, rj) =&gt; &#123;</div><div class="line">	setTimeout(re, 1000, 3)</div><div class="line">&#125;)</div><div class="line"></div><div class="line">Promise.all([p1, p2, p3]).then(res =&gt; &#123;</div><div class="line">	console.log(res)</div><div class="line">&#125;)</div><div class="line">----output----</div><div class="line">1000ms后输出</div><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td></tr></table></figure>
+<p><code>Promise.all(iterable)</code>中当所有的<code>promise</code>对象都成功或者任何一个<code>Promise</code>对象失败时，那么<code>Promise.all</code>就会立即变为完成或者失败状态。这个新的<code>Promise</code>对象在触发成功状态以后，会把一个包含<code>iterable</code>里所有<code>Promise</code>返回值的数组作为成功回调的返回值，顺序跟<code>iterable</code>的顺序保持一致；如果这个新的<code>Promise</code>对象触发了失败状态，它会把<code>iterable</code>里第一个触发失败的<code>Promise</code>对象的错误信息作为它的失败错误信息。<code>Promise.all</code>方法常被用于处理多个<code>Promise</code>对象的状态集合，同步执行多个异步请求。</p>
+<h4 id="race"><a href="#race" class="headerlink" title=".race"></a>.race</h4><p><strong>语法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Promise.race(iterable)</div></pre></td></tr></table></figure>
+<p><code>Promise.race(iterable)</code>跟<code>all</code>方法不一样，一旦<code>iterable</code>中只要有一个<code>Promise</code>对象达到完成或失败的状态，返回的<code>Promise</code>就会立刻变为<code>fulfilled</code>或者<code>rejected</code>，并获得之前那个<code>Promise</code>对象的返回结果或者错误原因。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">var p1 = new Promise(function(resolve, reject) &#123; </div><div class="line">    setTimeout(resolve, 500, &quot;one&quot;); </div><div class="line">&#125;);</div><div class="line">var p2 = new Promise(function(resolve, reject) &#123; </div><div class="line">    setTimeout(resolve, 100, &quot;two&quot;); </div><div class="line">&#125;);</div><div class="line"></div><div class="line">Promise.race([p1, p2]).then(function(value) &#123;</div><div class="line">  console.log(value); // &quot;two&quot;</div><div class="line">  // 两个都完成，但 p2 更快</div><div class="line">&#125;);</div><div class="line"></div><div class="line">var p5 = new Promise(function(resolve, reject) &#123; </div><div class="line">    setTimeout(resolve, 500, &quot;five&quot;); </div><div class="line">&#125;);</div><div class="line">var p6 = new Promise(function(resolve, reject) &#123; </div><div class="line">    setTimeout(reject, 100, &quot;six&quot;);</div><div class="line">&#125;);</div><div class="line"></div><div class="line">Promise.race([p5, p6]).then(function(value) &#123;</div><div class="line">  // 未被调用             </div><div class="line">&#125;, function(reason) &#123;</div><div class="line">  console.log(reason); // &quot;six&quot;</div><div class="line">  // p6 更快，所以它失败了</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h3 id="跟setTimeout的区别"><a href="#跟setTimeout的区别" class="headerlink" title="跟setTimeout的区别"></a>跟setTimeout的区别</h3><p>先看看下面代码的执行结果吧</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">console.log(&apos;script start&apos;)</div><div class="line"></div><div class="line">setTimeout(function() &#123;</div><div class="line">    console.log(&apos;setTimeout&apos;)</div><div class="line">&#125;, 0)</div><div class="line"></div><div class="line">new Promise(function(resolve, reject) &#123;</div><div class="line">    console.log(&apos;promise1&apos;)</div><div class="line">    resolve()</div><div class="line">&#125;).then(() =&gt; &#123;</div><div class="line">    console.log(&apos;promise2&apos;)</div><div class="line">&#125;)</div><div class="line"></div><div class="line">console.log(&apos;script end&apos;)</div><div class="line"></div><div class="line">---- output ---- </div><div class="line">script start</div><div class="line">promise1</div><div class="line">script end</div><div class="line">promise2</div><div class="line">setTimeout</div></pre></td></tr></table></figure>
+<p>以上代码中<code>Promise</code>的代码将立即执行，<code>then</code>和<code>setTimeout</code>都将异步执行，然而<code>Promise</code>和<code>setTimeout</code>的区别在于<code>Promise</code>的异步任务会插入到<code>microtasks</code>（微任务）中，而<code>setTimeout</code>的异步任务会插入到<code>task</code>（宏任务）。</p>
+<p>在浏览器机制中，所有微任务会在下一个宏任务执行之前全部执行完毕。因此<code>promise2</code>会早于<code>setTimeout</code>输出。</p>
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><h4 id="封装ajax"><a href="#封装ajax" class="headerlink" title="封装ajax"></a>封装ajax</h4><p>使用Promise进行AJAX操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">function search(term) &#123;</div><div class="line">  var url = &apos;http://example.com/search?q=&apos; + term;</div><div class="line">  var xhr = new XMLHttpRequest();</div><div class="line">  var result;</div><div class="line"></div><div class="line">  var p = new Promise(function (resolve, reject) &#123;</div><div class="line">    xhr.open(&apos;GET&apos;, url, true);</div><div class="line">    xhr.onload = function (e) &#123;</div><div class="line">      if (this.status === 200) &#123;</div><div class="line">        result = JSON.parse(this.responseText);</div><div class="line">        resolve(result);</div><div class="line">      &#125;</div><div class="line">    &#125;;</div><div class="line">    xhr.onerror = function (e) &#123;</div><div class="line">      reject(e);</div><div class="line">    &#125;;</div><div class="line">    xhr.send();</div><div class="line">  &#125;);</div><div class="line"></div><div class="line">  return p; //返回Promise对象</div><div class="line">&#125;</div><div class="line"></div><div class="line">search(&quot;Hello World&quot;).then(console.log, console.error);</div></pre></td></tr></table></figure>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" target="_blank" rel="external">MDN-Promise</a></p>
+<p><a href="https://segmentfault.com/a/1190000014940904#articleHeader10" target="_blank" rel="external">JavaScript-事件机制之宏任务、为任务</a></p>
+<p><a href="http://www.cnblogs.com/whitewolf/archive/2015/10/22/4902570.html" target="_blank" rel="external">浏览器事件模型和回调机制</a>    </p>
+<p><a href="http://blog.csdn.net/shuidinaozhongyan/article/details/71702992" target="_blank" rel="external">理解promise及适用场景</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/12/食谱-白灼虾-玉米汁/" rel="next" title="[食谱]白灼虾+玉米汁">
+                <i class="fa fa-chevron-left"></i> [食谱]白灼虾+玉米汁
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/wukong.png"
+               alt="Lin JianHuang" />
+          <p class="site-author-name" itemprop="name">Lin JianHuang</p>
+           
+              <p class="site-description motion-element" itemprop="description">兴趣使然的小胖子</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/mcmpan" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Promise是什么"><span class="nav-number">2.</span> <span class="nav-text">Promise是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Promise的语法"><span class="nav-number">3.</span> <span class="nav-text">Promise的语法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#基本语法"><span class="nav-number">3.1.</span> <span class="nav-text">基本语法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#then"><span class="nav-number">3.2.</span> <span class="nav-text">.then</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#catch"><span class="nav-number">3.3.</span> <span class="nav-text">.catch</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#finally"><span class="nav-number">3.4.</span> <span class="nav-text">.finally</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#resolve"><span class="nav-number">3.5.</span> <span class="nav-text">.resolve</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#all"><span class="nav-number">3.6.</span> <span class="nav-text">.all</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#race"><span class="nav-number">3.7.</span> <span class="nav-text">.race</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#跟setTimeout的区别"><span class="nav-number">4.</span> <span class="nav-text">跟setTimeout的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用场景"><span class="nav-number">5.</span> <span class="nav-text">使用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#封装ajax"><span class="nav-number">5.1.</span> <span class="nav-text">封装ajax</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lin JianHuang</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (search_path.endsWith("json")) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2dQbGL9KK9Sy1kzYX1Wx532L-gzGzoHsz", "bf06tz16TiTqbKrBJ1q7LSOr");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
